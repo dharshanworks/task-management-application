@@ -1,7 +1,30 @@
 import React from 'react';
-import { FiTrash2, FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
+import { 
+  FiTrash2, 
+  FiArrowRight, 
+  FiArrowLeft, 
+  FiCheck, 
+  FiCheckSquare, 
+  FiEdit2, 
+  FiClock, 
+  FiAlertCircle 
+} from 'react-icons/fi';
 
-const TaskItem = ({ task, onStatusChange, onDelete }) => {
+const PRIORITY_STYLES = {
+  Urgent: { bg: 'rgba(220, 38, 38, 0.12)', text: '#DC2626', border: 'rgba(220, 38, 38, 0.3)' },
+  High: { bg: 'rgba(239, 68, 68, 0.12)', text: '#EF4444', border: 'rgba(239, 68, 68, 0.3)' },
+  Medium: { bg: 'rgba(245, 158, 11, 0.12)', text: '#D97706', border: 'rgba(245, 158, 11, 0.3)' },
+  Low: { bg: 'rgba(16, 185, 129, 0.12)', text: '#059669', border: 'rgba(16, 185, 129, 0.3)' }
+};
+
+const TaskItem = ({ 
+  task, 
+  onStatusChange, 
+  onDelete, 
+  onEdit, 
+  onDragStart,
+  isDragging 
+}) => {
   const getNextStatus = () => {
     if (task.status === 'Planned') return 'In Progress';
     if (task.status === 'In Progress') return 'Complete';
@@ -14,40 +37,131 @@ const TaskItem = ({ task, onStatusChange, onDelete }) => {
     return null;
   };
 
+  const isComplete = task.status === 'Complete';
+
+  // Due date status calculation
+  const getDueDateInfo = (dueDateStr) => {
+    if (!dueDateStr) return null;
+    const due = new Date(dueDateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.round((due - today) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) {
+      return { text: `Overdue (${Math.abs(diffDays)}d)`, isOverdue: true };
+    } else if (diffDays === 0) {
+      return { text: 'Due Today', isToday: true };
+    } else if (diffDays === 1) {
+      return { text: 'Due Tomorrow', isUpcoming: true };
+    } else {
+      return { 
+        text: due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), 
+        isUpcoming: true 
+      };
+    }
+  };
+
+  const dueInfo = getDueDateInfo(task.dueDate);
+  const priorityStyle = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.Medium;
+  const completedSubtasks = task.subtasks ? task.subtasks.filter(s => s.completed).length : 0;
+  const totalSubtasks = task.subtasks ? task.subtasks.length : 0;
+
   return (
-    <div className={`task-item glass-panel animate-slide-up ${task.status === 'Complete' ? 'completed' : ''}`} style={{
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '1rem',
-      gap: '0.75rem',
-      opacity: task.status === 'Complete' ? 0.7 : 1
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-        <span style={{ 
-          flex: 1, 
-          fontSize: '0.9375rem',
-          textDecoration: task.status === 'Complete' ? 'line-through' : 'none',
-          color: task.status === 'Complete' ? 'var(--text-muted)' : 'var(--text-main)',
-          wordBreak: 'break-word'
-        }}>
-          {task.text}
-        </span>
-        
-        <button 
-          onClick={() => onDelete(task.id)} 
-          className="btn-icon text-danger" 
-          title="Delete Task"
-          style={{ padding: '0.25rem', marginTop: '-0.25rem' }}
+    <div
+      className={`task-card glass-panel animate-slide-up ${isComplete ? 'task-card-complete' : ''} ${isDragging ? 'task-dragging' : ''}`}
+      draggable
+      onDragStart={(e) => onDragStart && onDragStart(e, task.id)}
+      style={{ cursor: 'grab' }}
+    >
+      {/* Top Meta Bar: Priority & Due Date */}
+      <div className="task-card-meta">
+        <span 
+          className="badge-priority" 
+          style={{ 
+            backgroundColor: priorityStyle.bg, 
+            color: priorityStyle.text, 
+            borderColor: priorityStyle.border 
+          }}
         >
-          <FiTrash2 size={16} />
-        </button>
+          {task.priority || 'Medium'}
+        </span>
+
+        {dueInfo && (
+          <span 
+            className={`badge-due ${dueInfo.isOverdue && !isComplete ? 'badge-due-overdue' : dueInfo.isToday && !isComplete ? 'badge-due-today' : ''}`}
+          >
+            {dueInfo.isOverdue && !isComplete ? <FiAlertCircle size={12} /> : <FiClock size={12} />}
+            {dueInfo.text}
+          </span>
+        )}
+
+        <div className="task-actions-quick" style={{ marginLeft: 'auto', display: 'flex', gap: '0.25rem' }}>
+          <button 
+            type="button"
+            onClick={() => onEdit(task)} 
+            className="btn-icon btn-icon-sm" 
+            title="Edit Task Details"
+            aria-label="Edit Task"
+          >
+            <FiEdit2 size={13} />
+          </button>
+          <button 
+            type="button"
+            onClick={() => onDelete(task.id)} 
+            className="btn-icon btn-icon-sm text-danger" 
+            title="Delete Task"
+            aria-label="Delete Task"
+          >
+            <FiTrash2 size={13} />
+          </button>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+      {/* Task Title & Description */}
+      <div 
+        className="task-card-body"
+        onClick={() => onEdit(task)}
+        style={{ cursor: 'pointer' }}
+      >
+        <h4 className={`task-title ${isComplete ? 'line-through text-muted' : ''}`}>
+          {task.text}
+        </h4>
+        {task.description && (
+          <p className="task-desc-preview">
+            {task.description}
+          </p>
+        )}
+      </div>
+
+      {/* Tags & Subtasks preview */}
+      {(task.tags && task.tags.length > 0) || totalSubtasks > 0 ? (
+        <div className="task-card-tags-row">
+          {task.tags && task.tags.map(tag => (
+            <span key={tag} className="tag-pill">
+              #{tag}
+            </span>
+          ))}
+
+          {totalSubtasks > 0 && (
+            <span 
+              className={`subtask-badge ${completedSubtasks === totalSubtasks ? 'subtask-badge-done' : ''}`}
+              title={`${completedSubtasks} of ${totalSubtasks} checklist items completed`}
+            >
+              <FiCheckSquare size={12} />
+              {completedSubtasks}/{totalSubtasks}
+            </span>
+          )}
+        </div>
+      ) : null}
+
+      {/* Footer Navigation Buttons */}
+      <div className="task-card-footer">
         {getPrevStatus() ? (
           <button 
+            type="button"
             onClick={() => onStatusChange(task.id, getPrevStatus())}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem 0' }}
+            className="btn-step-nav"
+            title={`Move back to ${getPrevStatus()}`}
           >
             <FiArrowLeft size={12} /> {getPrevStatus()}
           </button>
@@ -55,11 +169,14 @@ const TaskItem = ({ task, onStatusChange, onDelete }) => {
 
         {getNextStatus() && (
           <button 
+            type="button"
             onClick={() => onStatusChange(task.id, getNextStatus())}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--primary-color)', background: 'rgba(79, 70, 229, 0.1)', padding: '0.25rem 0.75rem', borderRadius: '1rem', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+            className="btn-step-nav btn-step-next"
+            title={`Move to ${getNextStatus()}`}
           >
-            {getNextStatus() === 'Complete' ? <FiCheck size={12} /> : <FiArrowRight size={12} />} 
-            {getNextStatus()}
+            {getNextStatus() === 'Complete' ? <FiCheck size={12} /> : null}
+            <span>{getNextStatus()}</span>
+            {getNextStatus() !== 'Complete' ? <FiArrowRight size={12} /> : null}
           </button>
         )}
       </div>

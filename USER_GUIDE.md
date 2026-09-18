@@ -1,44 +1,86 @@
-# User Guide
+# User Guide - TaskFlow Application
 
-Welcome to the Task Management Application! This guide will help you navigate and use the software effectively.
+Welcome to TaskFlow! This guide walks you through every feature of the application to ensure you get the maximum value and ease of use.
 
-## How to Access and Use the Application
+---
 
-1. Open your terminal in the root directory of the project.
-2. Run the command `npm run dev` to start the local server.
-3. Open a web browser and navigate to the URL shown in your terminal (typically `http://localhost:5173`).
+## 1. Accessing the Application
 
-### Login Instructions
+1. Open your terminal in the project directory.
+2. Run `npm run dev` to start Vite.
+3. Open `http://localhost:5173` in any modern web browser.
 
-To ensure a secure experience, the application requires you to sign in.
+### Signing In
+- **Option A: Sign in with Google:** Click the official "Sign in with Google" button. Select your account from the Google popup.
+- **Option B: Guest Demo Mode:** If you do not have a Google Client ID configured or want to test immediately, click **"Guest Demo Mode"** or **"Continue with Demo Guest Access"**. This opens the app with preloaded sample data immediately.
 
-1. On the welcome screen, click the **Sign in with Google** button.
-2. A secure Google popup will appear. Select your preferred Google account.
-3. Once authenticated, you will be automatically redirected to your personal Task Manager dashboard.
-4. To log out, click the logout icon (a door with an arrow) next to your profile picture in the top right corner.
+---
 
-### Managing Tasks
+## 2. Managing Tasks
 
-- **Create a Task:** Type your task into the input field at the top labeled "What needs to be done?" and press Enter or click the "Add" button. By default, new tasks are assigned the **Planned** status.
-- **Update Status:** Every task has a dropdown menu on its left side. Click it to transition the task between three states:
-  - `Planned`: The task is on your radar.
-  - `In Progress`: You are currently actively working on the task.
-  - `Complete`: The task is finished (it will be visually crossed out).
-- **Delete a Task:** Click the red trash can icon on the far right of any task to permanently remove it.
-- **Track Progress:** The progress bar on the right side of the screen visually tracks the percentage of tasks that are marked as `Complete`.
+### Creating Tasks
+- **Quick Add:** Type in the top input box (`What needs to be done?`) and press **Enter** or click **Add**. The task is instantly created in the **Planned** state.
+- **Detailed Creation Modal:** Click the `+ New Task` button in the top navigation bar or the `+` icon in any Kanban column header. This allows setting:
+  - Task Title & Description
+  - Status (`Planned`, `In Progress`, `Complete`)
+  - Priority (`Urgent`, `High`, `Medium`, `Low`)
+  - Due Date
+  - Custom Tags & Labels
+  - Subtask checklist steps
 
-## Important Assumptions Made
+### Editing Tasks
+- Click on any task card or table row to open the full edit modal.
+- Modify any field and click **Save Changes**.
 
-To adhere to the "simple task management application" requirement and avoid unnecessary scope expansion, the following assumptions were made during development:
+### Updating Status
+Tasks support the three core assessment states:
+1. `Planned`
+2. `In Progress`
+3. `Complete`
 
-1. **Local Storage is Sufficient:** Instead of relying on an external cloud database (like Firebase or PostgreSQL), tasks are stored in the browser's native `localStorage`. This keeps the application incredibly fast, easy to set up, and free of backend deployment dependencies.
-2. **Single User Focus:** The application does not support collaborative task sharing. Tasks are tied locally to the specific email address you log in with.
+You can update statuses in three different ways:
+1. **Drag and Drop (Kanban Board):** Click and drag a task card to any column.
+2. **Step Navigation Buttons:** Click the bottom arrow buttons (e.g. `In Progress →` or `✓ Complete`) on any card.
+3. **Table Dropdown / Checkbox (List View):** In the List view, check the checkbox to toggle between Planned and Complete, or use the inline status select menu.
 
-## Known Limitations
+### Subtasks Checklist
+- Tasks can have multiple granular subtasks.
+- Check off subtasks directly inside the task modal. The card will display a progress counter (e.g., `✓ 2/3`).
 
-- **No Cross-Device Syncing:** Because data is stored in your browser's local storage, your tasks will not sync if you log in from a different computer or a different browser (e.g., switching from Chrome to Firefox).
-- **Temporary Data Loss:** If you clear your browser's site data or cache, your tasks will be permanently deleted.
+---
 
-## Important Notes or Warnings for Users
+## 3. Views & Navigation
 
-- **Google Client ID Setup:** The "Sign in with Google" button relies on a valid Google Client ID configured in the Google Cloud Console. If the button throws an `invalid_client` or `Authorisation error`, it means the `GOOGLE_CLIENT_ID` in `src/App.jsx` is either incorrect, hasn't propagated, or your local URL isn't added to the "Authorized JavaScript origins" in the Google Cloud Console.
+Use the top navigation bar to switch between three specialized views:
+- **Board View:** Visual 3-column Kanban layout ideal for sprint execution and drag-and-drop management.
+- **List View:** Compact, spreadsheet-style table with sortable columns, inline status selectors, and priority indicators.
+- **Overview (Analytics):** High-level productivity dashboard showing completion rate %, in-flight tasks, overdue alerts, status distribution, and tag velocity.
+
+---
+
+## 4. Search, Filter & Sort
+
+The toolbar allows filtering your view in real time:
+- **Search Bar:** Type any keyword to instantly filter tasks by title, description, or tag.
+- **Status Filter:** Filter by Planned, In Progress, or Complete.
+- **Priority Filter:** Filter by Urgent, High, Medium, or Low.
+- **Tag Filter:** Filter by any active tag label (e.g. `#Work`, `#Testing`).
+- **Sort By:** Sort by Due Date (earliest first), Priority (urgent first), Recently Created, or Alphabetical.
+- **Clear Filters:** A one-click button appears whenever filters are active to quickly reset.
+
+---
+
+## 5. Data Backup & Tools
+
+Located on the right side of the toolbar:
+- **Export:** Downloads all your tasks into a structured JSON backup file (`tasks-backup-YYYY-MM-DD.json`).
+- **Import:** Uploads a JSON backup file to restore or migrate tasks across devices.
+- **Sample Tasks:** Appends realistic sample tasks with various priorities and subtasks for demonstration.
+- **Clear Complete:** Removes all completed tasks in one click with a confirmation prompt.
+
+---
+
+## 6. Assumptions & Limitations
+
+- **Local Storage Sandbox:** Data is stored in the browser's `localStorage` scoped per user email. This guarantees 100% privacy and blazing speed without requiring an external database backend.
+- **Cross-Device Sync:** Because data is stored in your local browser sandbox, switching computers or browsers will not automatically sync without using the Export/Import JSON tool.

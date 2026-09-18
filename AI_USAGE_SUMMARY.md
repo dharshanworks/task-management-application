@@ -1,31 +1,39 @@
 # AI Usage Summary
 
-This document outlines the AI tools and methodologies utilized to build this Task Management Application for the Graduate Support Engineer Trainee Assessment.
+This document details the AI-assisted engineering process, tooling, and design iterations undertaken for the Graduate Support Engineer Trainee Assessment.
 
-## 1. AI Tools Used
-- **Google Antigravity (AGY):** Served as the primary autonomous AI coding assistant and agent.
-- **Gemini 3.1 Pro (High):** The underlying Large Language Model (LLM) powering the Antigravity agent, providing logic, coding capabilities, and reasoning.
+## 1. AI Tools & Models Used
+- **Google Antigravity (AGY):** Primary autonomous pair-programming assistant.
+- **Gemini 3.1 Pro (High) & Gemini 3.8 Flash (High):** LLM cognitive engines powering code generation, architectural design, debugging, and refactoring.
 
-## 2. How the AI Tools Were Used
-The AI was utilized in a "Pair Programming" methodology, acting as a collaborative developer to:
-1. **Architect the Solution:** Drafted an initial Implementation Plan based on user requirements.
-2. **Project Scaffolding:** Executed terminal commands autonomously to initialize the Vite/React project and install dependencies (`@react-oauth/google`, `jwt-decode`, `react-icons`).
-3. **Component Generation:** Generated React components (`App.jsx`, `TaskManager.jsx`, `TaskItem.jsx`, `Login.jsx`) and a custom, premium CSS theme using glassmorphism.
-4. **Troubleshooting:** Diagnosed and provided step-by-step resolution for a Google OAuth `invalid_client` configuration error based on error screenshots provided by the user.
-5. **Requirement Alignment:** When the full assessment requirements were provided, the AI identified the gap (missing 3-state task status) and proposed an architectural update to replace the boolean `completed` state with string states (`Planned`, `In Progress`, `Complete`).
-6. **Documentation Generation:** Automatically drafted this file, the `README.md`, and the `USER_GUIDE.md`.
+## 2. Methodology & Phases of Work
+
+1. **Phase 1: Project Scaffolding & Initial Prototype**
+   - Bootstrapped React + Vite environment with zero external database dependencies (respecting the "No Firebase/Firestore" directive).
+   - Integrated Google OAuth 2.0 via `@react-oauth/google` and `jwt-decode`.
+   - Designed initial glassmorphic light theme.
+
+2. **Phase 2: Troubleshooting Google OAuth & Assessment Alignment**
+   - Diagnosed Google OAuth Client ID configuration issues (missing web origin and ID typos) via browser error analysis.
+   - Realigned the task state machine to strictly support the 3 assessment states: `Planned`, `In Progress`, and `Complete`.
+
+3. **Phase 3: UX Restructuring into Kanban Sections & Landing Page**
+   - Transformed the single list view into a 3-column Kanban layout.
+   - Built a customer-centric landing page with value propositions and feature highlights.
+
+4. **Phase 4: Full Feature Integration & Power Productivity Suite**
+   - Added HTML5 Drag-and-Drop between Kanban columns.
+   - Built a multi-view system: **Board View**, **List / Table View**, and **Analytics Dashboard**.
+   - Added rich task metadata: Priorities (`Urgent`, `High`, `Medium`, `Low`), due dates with overdue warnings, custom tag chips, and subtask checklists.
+   - Implemented live search, multi-factor filtering, and sorting.
+   - Created data backup tools (JSON Export & Import) and instant Guest/Demo mode.
 
 ## 3. Example Prompts
-The development was guided by the following iterative prompts:
+- *"Create a simple task management application with light theme and sign in with google option and customer centric and want to ease with application usage and ui and ux experience"*
+- *"Do not use firebase and firestore"*
+- *"Add different section for everything and make simple and efficient with landing and home page"*
+- *"Integrate all features which available in task manager application"*
 
-* **Initial Request:** 
-  > "Create a simple task management application with light theme and sign in with google option and customer centric and want to ease with application usage and ui and ux experirence"
-* **Refinement:**
-  > "Do not use firebase and firestore" *(This prompted the AI to shift to a frontend-only OAuth approach with `localStorage` persistence to keep the app simple).*
-* **Troubleshooting:**
-  > *(User provided a screenshot of Google Auth Error 401: invalid_client)* -> The AI responded with configuration steps for the Google Cloud Console.
-* **Final Alignment:**
-  > *(User provided the full assignment text)* -> The AI responded by adding the required 3 task states and generating the required documentation.
-
-## 4. What AI-Generated Code Was Modified or Corrected Manually
-- **Google Client ID Configuration:** The AI placed a placeholder (`"YOUR_GOOGLE_CLIENT_ID_HERE"`) in `src/App.jsx`. This was manually replaced with a valid Client ID generated from the Google Cloud Console. When a typo occurred during the manual copy-paste (typing `462...` instead of `467...`), the AI identified the typo by comparing the code to a console screenshot, and the ID was manually corrected.
+## 4. Manual vs. AI Contributions
+- **AI Automation:** Architected state management, built responsive component hierarchies, crafted custom CSS glassmorphic tokens, implemented drag & drop events, and generated full technical documentation.
+- **Human Oversight:** Configured Google Cloud Console credentials, validated localized design preferences, and verified functional workflows across views.
