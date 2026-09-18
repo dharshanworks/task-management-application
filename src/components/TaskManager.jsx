@@ -6,7 +6,6 @@ const TaskManager = ({ user, onLogout }) => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState('');
 
-  // Load tasks from local storage on mount
   useEffect(() => {
     if (user && user.email) {
       const storedTasks = localStorage.getItem(`tasks_${user.email}`);
@@ -16,7 +15,6 @@ const TaskManager = ({ user, onLogout }) => {
     }
   }, [user]);
 
-  // Save tasks to local storage whenever they change
   useEffect(() => {
     if (user && user.email) {
       localStorage.setItem(`tasks_${user.email}`, JSON.stringify(tasks));
@@ -30,7 +28,7 @@ const TaskManager = ({ user, onLogout }) => {
     const newTaskObj = {
       id: Date.now().toString(),
       text: newTask.trim(),
-      status: 'Planned', // 'Planned', 'In Progress', 'Complete'
+      status: 'Planned',
     };
     
     setTasks([newTaskObj, ...tasks]);
@@ -47,19 +45,58 @@ const TaskManager = ({ user, onLogout }) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
-  const completedCount = tasks.filter(t => t.status === 'Complete').length;
-  const inProgressCount = tasks.filter(t => t.status === 'In Progress').length;
-  const totalCount = tasks.length;
-  const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+  const renderColumn = (title, statusFilter, color) => {
+    const filteredTasks = tasks.filter(t => t.status === statusFilter);
+    return (
+      <div className="kanban-column">
+        <div className="kanban-header" style={{ borderBottomColor: color, color: color }}>
+          <span>{title}</span>
+          <span style={{ fontSize: '0.875rem', backgroundColor: color, color: 'white', padding: '0.1rem 0.5rem', borderRadius: '1rem' }}>
+            {filteredTasks.length}
+          </span>
+        </div>
+        
+        {filteredTasks.length === 0 ? (
+          <div className="glass-panel text-center" style={{ padding: '2rem 1rem', opacity: 0.6 }}>
+            <p style={{ fontSize: '0.875rem' }}>No tasks here</p>
+          </div>
+        ) : (
+          filteredTasks.map(task => (
+            <TaskItem 
+              key={task.id} 
+              task={task} 
+              onStatusChange={handleStatusChange} 
+              onDelete={handleDeleteTask} 
+            />
+          ))
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', maxWidth: '1200px' }}>
       {/* Header */}
       <header className="glass-panel mb-8" style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Hello, {user.name.split(' ')[0]} 👋</h1>
-          <p style={{ margin: 0, fontSize: '0.875rem' }}>Here are your tasks for today.</p>
+          <p style={{ margin: 0, fontSize: '0.875rem' }}>Manage your workflow below.</p>
         </div>
+        
+        {/* Add Task Form (Moved to header area for better Kanban layout) */}
+        <form onSubmit={handleAddTask} style={{ display: 'flex', gap: '1rem', flex: 1, maxWidth: '400px', margin: '0 2rem' }}>
+          <input
+            type="text"
+            placeholder="Quick add a new task..."
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            style={{ flex: 1 }}
+          />
+          <button type="submit" className="btn btn-primary" aria-label="Add Task">
+            <FiPlus size={20} />
+          </button>
+        </form>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {user.picture && (
             <img 
@@ -74,74 +111,11 @@ const TaskManager = ({ user, onLogout }) => {
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '2rem' }}>
-        
-        {/* Main Content */}
-        <div>
-          {/* Add Task Form */}
-          <form onSubmit={handleAddTask} className="glass-panel mb-6 animate-fade-in" style={{ padding: '1.5rem', display: 'flex', gap: '1rem' }}>
-            <input
-              type="text"
-              placeholder="What needs to be done?"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <button type="submit" className="btn btn-primary">
-              <FiPlus size={18} /> Add
-            </button>
-          </form>
-
-          {/* Task List */}
-          <div className="task-list">
-            {tasks.length === 0 ? (
-              <div className="glass-panel text-center animate-fade-in" style={{ padding: '3rem' }}>
-                <p style={{ fontSize: '1.125rem', marginBottom: '0.5rem' }}>You're all caught up!</p>
-                <p style={{ fontSize: '0.875rem' }}>Add a task above to get started.</p>
-              </div>
-            ) : (
-              tasks.map(task => (
-                <TaskItem 
-                  key={task.id} 
-                  task={task} 
-                  onStatusChange={handleStatusChange} 
-                  onDelete={handleDeleteTask} 
-                />
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Stats Panel */}
-        <div className="glass-panel animate-fade-in" style={{ padding: '2rem', alignSelf: 'start' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Progress</h2>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
-            <span>Completed</span>
-            <span style={{ fontWeight: 600 }}>{completedCount} / {totalCount}</span>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-            <span>In Progress</span>
-            <span>{inProgressCount}</span>
-          </div>
-          
-          <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
-            <div 
-              style={{ 
-                height: '100%', 
-                width: `${progress}%`, 
-                backgroundColor: 'var(--primary-color)',
-                transition: 'width 0.5s ease-out',
-                borderRadius: '4px'
-              }} 
-            />
-          </div>
-          <p className="text-center mt-4" style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary-color)' }}>
-            {progress}%
-          </p>
-        </div>
-        
+      {/* Kanban Board */}
+      <div className="kanban-board">
+        {renderColumn('Planned', 'Planned', 'var(--text-muted)')}
+        {renderColumn('In Progress', 'In Progress', 'var(--primary-color)')}
+        {renderColumn('Complete', 'Complete', 'var(--success-color)')}
       </div>
     </div>
   );

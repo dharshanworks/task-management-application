@@ -1,69 +1,68 @@
 import React from 'react';
-import { FiTrash2 } from 'react-icons/fi';
+import { FiTrash2, FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
 
 const TaskItem = ({ task, onStatusChange, onDelete }) => {
-  const isComplete = task.status === 'Complete';
+  const getNextStatus = () => {
+    if (task.status === 'Planned') return 'In Progress';
+    if (task.status === 'In Progress') return 'Complete';
+    return null;
+  };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'Complete': return 'var(--success-color)';
-      case 'In Progress': return 'var(--primary-color)';
-      default: return 'var(--text-muted)';
-    }
+  const getPrevStatus = () => {
+    if (task.status === 'Complete') return 'In Progress';
+    if (task.status === 'In Progress') return 'Planned';
+    return null;
   };
 
   return (
-    <div 
-      className="glass-panel animate-fade-in" 
-      style={{ 
-        padding: '1rem 1.5rem', 
-        marginBottom: '1rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        transition: 'all 0.3s ease',
-        opacity: isComplete ? 0.7 : 1,
-        transform: isComplete ? 'scale(0.98)' : 'scale(1)',
-        backgroundColor: isComplete ? 'rgba(255,255,255,0.4)' : 'var(--surface-color)'
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
-        <select 
-          value={task.status} 
-          onChange={(e) => onStatusChange(task.id, e.target.value)}
-          style={{
-            padding: '0.4rem 0.8rem',
-            borderRadius: '0.5rem',
-            border: `1px solid ${getStatusColor(task.status)}`,
-            backgroundColor: 'rgba(255,255,255,0.7)',
-            color: getStatusColor(task.status),
-            fontWeight: 600,
-            cursor: 'pointer',
-            outline: 'none'
-          }}
-        >
-          <option value="Planned">Planned</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Complete">Complete</option>
-        </select>
-        
+    <div className={`task-item glass-panel animate-slide-up ${task.status === 'Complete' ? 'completed' : ''}`} style={{
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '1rem',
+      gap: '0.75rem',
+      opacity: task.status === 'Complete' ? 0.7 : 1
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
         <span style={{ 
-          fontSize: '1.125rem',
-          textDecoration: isComplete ? 'line-through' : 'none',
-          color: isComplete ? 'var(--text-muted)' : 'var(--text-main)',
-          transition: 'all 0.3s ease'
+          flex: 1, 
+          fontSize: '0.9375rem',
+          textDecoration: task.status === 'Complete' ? 'line-through' : 'none',
+          color: task.status === 'Complete' ? 'var(--text-muted)' : 'var(--text-main)',
+          wordBreak: 'break-word'
         }}>
           {task.text}
         </span>
+        
+        <button 
+          onClick={() => onDelete(task.id)} 
+          className="btn-icon text-danger" 
+          title="Delete Task"
+          style={{ padding: '0.25rem', marginTop: '-0.25rem' }}
+        >
+          <FiTrash2 size={16} />
+        </button>
       </div>
 
-      <button 
-        onClick={() => onDelete(task.id)}
-        className="btn-icon danger"
-        aria-label="Delete task"
-      >
-        <FiTrash2 size={20} />
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+        {getPrevStatus() ? (
+          <button 
+            onClick={() => onStatusChange(task.id, getPrevStatus())}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem 0' }}
+          >
+            <FiArrowLeft size={12} /> {getPrevStatus()}
+          </button>
+        ) : <div />}
+
+        {getNextStatus() && (
+          <button 
+            onClick={() => onStatusChange(task.id, getNextStatus())}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--primary-color)', background: 'rgba(79, 70, 229, 0.1)', padding: '0.25rem 0.75rem', borderRadius: '1rem', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+          >
+            {getNextStatus() === 'Complete' ? <FiCheck size={12} /> : <FiArrowRight size={12} />} 
+            {getNextStatus()}
+          </button>
+        )}
+      </div>
     </div>
   );
 };
