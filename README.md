@@ -1,16 +1,51 @@
-# React + Vite
+# Task Management Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A simple, premium Task Management application built with React, Vite, and Google Identity Services. This project was developed as part of a Graduate Support Engineer Trainee Assessment.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Google Authentication:** Secure login using the official Google Identity Services package.
+- **Task Management:** Create, view, update, and delete tasks.
+- **Task States:** Manage task progress by transitioning them between three specific states:
+  - `Planned`
+  - `In Progress`
+  - `Complete`
+- **Data Persistence:** Tasks are automatically saved to your browser's local storage so you don't lose data on refresh.
+- **Premium UI:** Features a light theme with glassmorphism, responsive design, and micro-animations for an exceptional user experience.
 
-## React Compiler
+## Setup Instructions
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Ensure you have [Node.js](https://nodejs.org/) installed (v18+ recommended).
+2. Clone this repository or download the source code.
+3. Open a terminal in the project root directory.
+4. Install the dependencies:
+   ```bash
+   npm install
+   ```
 
-## Expanding the Oxlint configuration
+## Configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+To use the Google Sign-In functionality, you must configure a Google Client ID:
+
+1. Open `src/App.jsx`.
+2. Locate line 8:
+   ```javascript
+   const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
+   ```
+3. Replace the string with a valid Client ID from your Google Cloud Console. Make sure the "Authorized JavaScript origins" in the console includes `http://localhost:5173`.
+
+## Running the Application
+
+To start the local development server:
+
+```bash
+npm run dev
+```
+
+Open the provided URL (usually `http://localhost:5173`) in your web browser.
+
+## Documentation
+
+For further details on how to use the application, its assumptions, and limitations, please refer to the [USER_GUIDE.md](./USER_GUIDE.md).
+
+For details on the AI tools used during development, see [AI_USAGE_SUMMARY.md](./AI_USAGE_SUMMARY.md).
